@@ -1,26 +1,18 @@
-import sys
-import time
-from networktables import NetworkTables
 from pygame import *
-
-# To see messages from networktables, you must setup logging
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
-ip = 'localhost' #'10.49.3.2'
-
-NetworkTables.initialize(server=ip)
-
-table = NetworkTables.getTable("Diagram")
-screen = display.set_mode((800, 600))
+import math
 
 init()
+screen = display.set_mode((800, 600))
+running = True
 
-pytimer = time.Clock()
-
+# robot stats
+LIGHT_STATUS = (0, 255, 0)
+ELEVATOR_HEIGHT = 100  # 0 to 100
 ELEVATOR_MAX_VALUE = 1000
-TILT_MAX_VALUE = 1000
+
+ROTATE = 0  # degrees
+HOOK = False  # True = out, False = in
+INTAKE = 0  # True = out, False = in
 
 # text
 font = font.Font('avenir.otf', 20)
@@ -36,14 +28,14 @@ def text(x, y, msg):
     screen.blit(Text, (x, y))
 
 
-def arm(x, y, r, robotState):
+def arm(x, y, r):
     # arm surface
 
     orig_arm = Surface((100, 450), SRCALPHA)
     origCenter = orig_arm.get_rect().center
 
     # hook
-    if robotState['hook']:
+    if HOOK:
         draw.line(orig_arm, (170, 170, 170), (80, 178), (97, 161), 8)
     else:
         draw.line(orig_arm, (170, 170, 170), (81, 178), (81, 155), 8)
@@ -53,15 +45,15 @@ def arm(x, y, r, robotState):
                  [(73, 185), (73, 130), (82, 130), (82, 188), (54, 228), (48, 223),
                   (73, 185)])
 
-    if robotState['intake'] != 0:
+    if INTAKE is not 0:
 
         # arrow
         draw.line(orig_arm, (245, 128, 128), (60, 90), (95, 90), 5)
 
-        if robotState['intake'] == -1:
+        if INTAKE == -1:
             draw.line(orig_arm, (245, 128, 128), (87, 80), (95, 90), 5)
             draw.line(orig_arm, (245, 128, 128), (87, 100), (95, 90), 5)
-        elif robotState['intake'] == 1:
+        else:
             draw.line(orig_arm, (245, 128, 128), (68, 80), (60, 90), 5)
             draw.line(orig_arm, (245, 128, 128), (68, 100), (60, 90), 5)
 
@@ -72,13 +64,13 @@ def arm(x, y, r, robotState):
     screen.blit(arm_rotated, (x + origCenter[0] - newCenter[0], y + origCenter[1] - newCenter[1]))
 
 
-def Robot(x, y, robotState):
+def Robot(x, y):
     # top pole
-    arm(x + 30, y - 275 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE) * 2, -(int(robotState['tilt'] * 100 / TILT_MAX_VALUE) - 10), robotState)
+    arm(x + 30, y - 275 - int(100 * ELEVATOR_HEIGHT / ELEVATOR_MAX_VALUE) * 2, -ROTATE)
 
     # secondary pole
-    draw.rect(screen, (255, 255, 0), (x + 76, y - 175 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE), 8, 140))
-    draw.rect(screen, (255, 255, 0), (x + 68, y - 50 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE), 8, 10))
+    draw.rect(screen, (255, 255, 0), (x + 76, y - 175 - int(100 * ELEVATOR_HEIGHT / ELEVATOR_MAX_VALUE), 8, 140))
+    draw.rect(screen, (255, 255, 0), (x + 68, y - 50 - int(100 * ELEVATOR_HEIGHT / ELEVATOR_MAX_VALUE), 8, 10))
 
     # main pole
     draw.rect(screen, (255, 0, 255), (x + 60, y - 160, 8, 130))
@@ -92,55 +84,47 @@ def Robot(x, y, robotState):
                  [(x, y - 50), (x + 120, y - 20), (x + 120, y + 15), (x, y - 15), (x - 120, y + 15), (x - 120, y - 20),
                   (x, y - 50)])
 
-running = True
 
 while running:
-
-    robotState = {
-        'elevator': table.getNumber('elevator', 0),
-        'backClimb': table.getNumber('backClimb', 0),
-        'frontClimb': table.getNumber('frontClimb', 0),
-        'hook': table.getNumber('hook', 0),
-        'tilt': table.getNumber('tilt', 0),
-        'intake': table.getNumber('intake', 0),
-        'ledR': table.getNumber('ledR', 0),
-        'ledG': table.getNumber('ledG', 0),
-        'ledB': table.getNumber('ledB', 1)
-    }
 
     for e in event.get():
         if e.type == QUIT:
             running = False
+
+
+        elif e.type == MOUSEBUTTONDOWN:
+            if e.button == 3:
+                HOOK = not HOOK
+            else:
+                INTAKE = -1
+
 
     # screen
     screen.fill((0, 0, 0))
     W = screen.get_width();
     H = screen.get_height();
 
+
     screen.blit(rocket, (W // 2 - 30, 35))
 
 
     # draw robot
-    Robot(W // 2 - 150, 530, robotState)
+    Robot(W // 2 - 150, 530)
 
 
     # text
-    texts = ["Elevator Position: %i / %i" % (robotState['elevator'], ELEVATOR_MAX_VALUE),
-             "Tilt Position: %i / %i" % (robotState['tilt'], TILT_MAX_VALUE),
-             "Hook: %s" % ("OUT" if robotState['hook'] else "IN"),
-             "Intake Direction: %s" % INTAKE_POSITIONS[robotState['intake']]]
+    texts = ["Elevator Position: %i / %i" % (ELEVATOR_HEIGHT, ELEVATOR_MAX_VALUE),
+             "Tilt Position: %i / %i" % (ELEVATOR_HEIGHT, ELEVATOR_MAX_VALUE),
+             "Hook: %s" % ("OUT" if HOOK else "IN"),
+             "Intake Direction: %s" % INTAKE_POSITIONS[INTAKE]]
     for i in range(len(texts)):
         text(20, 55 + i * 30, texts[i])
 
     # status bar
-    draw.rect(screen, (255 if robotState['ledR'] else 0, 255 if robotState['ledG'] else 0, 255 if robotState['ledB'] else 0), (0, 0, W, 40))
+    draw.rect(screen, LIGHT_STATUS, (0, 0, W, 40))
+
+    ELEVATOR_HEIGHT = 500 + math.sin(time.get_ticks() / 1000) * 500
+    #ROTATE = 90 - math.sin(time.get_ticks() / 1000) * 30
 
     display.flip()
-
-
-    pytimer.tick(60)
-
-exit()
-
-
-
+quit()
