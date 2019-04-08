@@ -19,8 +19,8 @@ init()
 
 pytimer = time.Clock()
 
-ELEVATOR_MAX_VALUE = 1000
-TILT_MAX_VALUE = 1000
+ELEVATOR_MAX_VALUE = 2195
+TILT_MAX_VALUE = 425000
 
 # text
 font = font.Font('avenir.otf', 20)
