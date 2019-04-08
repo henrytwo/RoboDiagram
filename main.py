@@ -130,7 +130,7 @@ while running:
              "Tilt Position: %i / %i" % (robotState['tilt'], TILT_MAX_VALUE),
              "Hook: %s" % ("OUT" if robotState['hook'] else "IN"),
              "Intake Direction: %s" % INTAKE_POSITIONS[robotState['intake']],
-             "Incognito Mode: %s" % ('ENABLED' if robotState['intake'] else 'DISABLED')]
+             "Incognito Mode: %s" % ('ENABLED' if robotState['incognito'] else 'DISABLED')]
     for i in range(len(texts)):
         text(20, 55 + i * 30, texts[i])
 
