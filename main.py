@@ -8,7 +8,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-ip = 'localhost' #'10.49.3.2'
+ip = '10.49.3.2'
 
 NetworkTables.initialize(server=ip)
 
@@ -105,7 +105,8 @@ while running:
         'intake': table.getNumber('intake', 0),
         'ledR': table.getNumber('ledR', 0),
         'ledG': table.getNumber('ledG', 0),
-        'ledB': table.getNumber('ledB', 1)
+        'ledB': table.getNumber('ledB', 1),
+        'incognito': table.getNumber('incognito', 0)
     }
 
     for e in event.get():
@@ -128,7 +129,8 @@ while running:
     texts = ["Elevator Position: %i / %i" % (robotState['elevator'], ELEVATOR_MAX_VALUE),
              "Tilt Position: %i / %i" % (robotState['tilt'], TILT_MAX_VALUE),
              "Hook: %s" % ("OUT" if robotState['hook'] else "IN"),
-             "Intake Direction: %s" % INTAKE_POSITIONS[robotState['intake']]]
+             "Intake Direction: %s" % INTAKE_POSITIONS[robotState['intake']],
+             "Incognito Mode: %s" % ('ENABLED' if robotState['intake'] else 'DISABLED')]
     for i in range(len(texts)):
         text(20, 55 + i * 30, texts[i])
 
