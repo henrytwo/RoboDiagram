@@ -8,7 +8,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-ip = '10.49.3.2'
+ip = 'localhost' #''10.49.3.2'
 
 NetworkTables.initialize(server=ip)
 
@@ -88,7 +88,7 @@ def Robot(x, y, robotState):
     draw.circle(screen, (50, 50, 50), (x + 70, y + 5), 20)
 
     # base
-    draw.polygon(screen, (21, 98, 214),
+    draw.polygon(screen, (0, 0, 255) if robotState['alliance'] == 'BLUE' else (225, 0, 0),
                  [(x, y - 50), (x + 120, y - 20), (x + 120, y + 15), (x, y - 15), (x - 120, y + 15), (x - 120, y - 20),
                   (x, y - 50)])
 
@@ -106,7 +106,8 @@ while running:
         'ledR': table.getNumber('ledR', 0),
         'ledG': table.getNumber('ledG', 0),
         'ledB': table.getNumber('ledB', 1),
-        'incognito': table.getNumber('incognito', 0)
+        'incognito': table.getNumber('incognito', 0),
+        'alliance': 'RED' if table.getNumber('red', 0) == 1 else 'BLUE'
     }
 
     for e in event.get():
@@ -129,7 +130,9 @@ while running:
              "Tilt Position: %i / %i" % (robotState['tilt'], TILT_MAX_VALUE),
              "Hook: %s" % ("OUT" if robotState['hook'] else "IN"),
              "Intake Direction: %s" % INTAKE_POSITIONS[robotState['intake']],
-             "Incognito Mode: %s" % ('ENABLED' if robotState['incognito'] else 'DISABLED')]
+             "Incognito Mode: %s" % ('ENABLED' if robotState['incognito'] else 'DISABLED'),
+             "Alliance: %s" % robotState['alliance']]
+
     for i in range(len(texts)):
         text(20, 55 + i * 30, texts[i])
 
