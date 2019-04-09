@@ -13,7 +13,7 @@ ip = '10.49.3.2'
 NetworkTables.initialize(server=ip)
 
 table = NetworkTables.getTable("Diagram")
-screen = display.set_mode((800, 600))
+screen = display.set_mode((800, 550))
 
 init()
 
@@ -118,11 +118,10 @@ while running:
     W = screen.get_width();
     H = screen.get_height();
 
-    screen.blit(rocket, (W // 2 - 30, 35))
-
+    screen.blit(rocket, (W // 2 - 30, -20))
 
     # draw robot
-    Robot(W // 2 - 150, 530, robotState)
+    Robot(W // 2 - 150, 480, robotState)
 
 
     # text
