@@ -8,7 +8,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-ip = 'localhost' #''10.49.3.2'
+ip = '10.49.3.2'
 
 NetworkTables.initialize(server=ip)
 
