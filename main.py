@@ -2,13 +2,14 @@ import sys
 import time
 from networktables import NetworkTables
 from pygame import *
+import math as m
 
 # To see messages from networktables, you must setup logging
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-ip = '10.49.3.2'
+ip = 'localhost' #'10.49.3.2'
 
 NetworkTables.initialize(server=ip)
 
@@ -20,7 +21,7 @@ init()
 pytimer = time.Clock()
 
 ELEVATOR_MAX_VALUE = 2195
-TILT_MAX_VALUE = 425000
+TILT_MAX_VALUE = 450000
 
 # text
 font = font.Font('avenir.otf', 20)
@@ -30,6 +31,16 @@ INTAKE_POSITIONS = {-1:'OUT', 0:'NEUTRAL', 1:'IN'}
 
 rocket = image.load('rocket.png')
 
+#    C
+#   __--
+#  |  /
+# A| / B
+#  |/
+
+A = 5.6
+B = 25
+
+TPI = 30
 
 def text(x, y, msg):
     Text = font.render(msg, True, (255, 255, 255))
@@ -71,10 +82,12 @@ def arm(x, y, r, robotState):
 
     screen.blit(arm_rotated, (x + origCenter[0] - newCenter[0], y + origCenter[1] - newCenter[1]))
 
+def armAngle(distance):
+    return m.acos((A ** 2 + B ** 2 - distance ** 2) / (2 * A * B))
 
 def Robot(x, y, robotState):
     # top pole
-    arm(x + 30, y - 275 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE) * 2, -(int(robotState['tilt'] * 100 / TILT_MAX_VALUE) - 10), robotState)
+    arm(x + 30, y - 275 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE) * 2, -armAngle((robotState['tilt'] / 1024) / TPI), robotState)
 
     # secondary pole
     draw.rect(screen, (255, 255, 0), (x + 76, y - 175 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE), 8, 140))
