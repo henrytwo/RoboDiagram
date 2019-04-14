@@ -147,7 +147,8 @@ while running:
              "Hook: %s" % ("OUT" if robotState['hook'] else "IN"),
              "Intake Direction: %s" % INTAKE_POSITIONS[robotState['intake']],
              "Incognito Mode: %s" % ('ENABLED' if robotState['incognito'] else 'DISABLED'),
-             "Alliance: %s" % robotState['alliance']]
+             "Alliance: %s" % robotState['alliance'],
+             "Connected to %s" % ip]
 
     for i in range(len(texts)):
         text(20, 55 + i * 30, texts[i])
