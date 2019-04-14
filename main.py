@@ -37,10 +37,12 @@ rocket = image.load('rocket.png')
 # A| / B
 #  |/
 
-A = 5.6
-B = 25
+A = 8
+B = 12
 
-TPI = 30
+TPI = 1
+
+D_INIT = 7
 
 def text(x, y, msg):
     Text = font.render(msg, True, (255, 255, 255))
@@ -83,11 +85,12 @@ def arm(x, y, r, robotState):
     screen.blit(arm_rotated, (x + origCenter[0] - newCenter[0], y + origCenter[1] - newCenter[1]))
 
 def armAngle(distance):
-    return m.acos((A ** 2 + B ** 2 - distance ** 2) / (2 * A * B))
+    return m.degrees(m.acos((A ** 2 + B ** 2 - distance ** 2) / (2 * A * B)))
 
 def Robot(x, y, robotState):
     # top pole
-    arm(x + 30, y - 275 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE) * 2, -armAngle((robotState['tilt'] / 1024) / TPI), robotState)
+    #arm(x + 30, y - 275 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE) * 2, -armAngle(D_INIT + (robotState['tilt'] / 1024) / 25.7 / TPI), robotState)
+    arm(x + 30, y - 275 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE) * 2, -armAngle(robotState['tilt'] / TILT_MAX_VALUE), robotState)
 
     # secondary pole
     draw.rect(screen, (255, 255, 0), (x + 76, y - 175 - int(100 * robotState['elevator'] / ELEVATOR_MAX_VALUE), 8, 140))
